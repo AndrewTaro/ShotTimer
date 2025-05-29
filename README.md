@@ -1,7 +1,7 @@
 # Shot Timer
 This mod shows the remaining time until the gun bloom effect wears off after firing the main battery.
 
-This was originally developed by someone, not me. However, I do not know the author.
+This was originally developed by someone, not me. However, I do not know the author, and the project was discontinued.
 
 ![image](https://github.com/user-attachments/assets/a1909fe1-2855-46a9-8936-dc62334e2287)
 # Install
