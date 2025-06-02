@@ -1,7 +1,7 @@
 # Shot Timer
 This mod shows the remaining time until the gun bloom effect wears off after firing the main battery.
 
-This was originally developed by ancient.
+This was originally developed by ancient, who no longer played World of Warships.  I took over the project to provide continuous support.
 
 ![image](https://github.com/user-attachments/assets/a1909fe1-2855-46a9-8936-dc62334e2287)
 # Install
