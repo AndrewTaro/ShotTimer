@@ -1,7 +1,4 @@
-(def constant SHOT_COUNTDOWN_SEC 20)
-
-(def css $TextShotTimer ()
-	(fontFamily = '$WWSDefaultFontBold')
+(def css $TextShotTimerBase ()
 	(extends $TextDefault17NM)
 	(hitTest=false)
 	(textAlign = "center")
@@ -20,42 +17,104 @@
 	)
 )
 
+(def css $TextShotTimerBold ()
+	(extends $TextShotTimerBase)
+	(fontFamily = '$WWSDefaultFontBold')
+)
+
+(def css $TextShotTimerNormal ()
+	(extends $TextShotTimerBase)
+	# (fontSize = 14)
+)
+
 (def element ShotTimer() layout=true
 	(scope
-		(var artilleryWeaponEntity:gfx = "$datahub.getPrimaryEntity(CC.weapon, SC.Ships.SHIP_WEAPON_TYPES.ARTILLERY)")
+		(var aimAssist:gfx = "$datahub.getSingleComponent(CC.aimAssist)")
+
+		(var penaltyTimer:number = "aimAssist ? aimAssist.shootVisibilityTimer : 0" (event "aimAssist.evShootVisibilityTimerChanged"))
+		(var penaltyTimerText:str = "formatFloatingPoint(penaltyTimer <= 10 ? penaltyTimer : floor(penaltyTimer - 0.01), penaltyTimer < 10 ? 1 : 0)")
+
+		# (var isPenaltyTimerActive:bool = "aimAssist ? aimAssist.shootVisibilityTimerVisible : false" (event "aimAssist.evShootVisibilityTimerChanged"))
+
+		(var isVisible:bool = "penaltyTimer > 0")
 
 		(var alertIndication:gfx = "$datahub.getSingleEntity(CC.battleIndication).alertIndication")
 		(var isAlertVisible:bool = "alertIndication.spotType == 'ship'" (event "alertIndication.evSpottedChanged"))
 
-		(var playerAvatarEntity:gfx = "$datahub.getSingleEntity(CC.playerAvatar)")
-		(var parameterKey:str = "playerAvatarEntity ? toString(playerAvatarEntity.id) + '_' + SC.Battle.PARAMETER.mgVisibilityTime : ''")
-		(var parameter:gfx = "$datahub.getPrimaryComponent(CC.parameter, parameterKey)")
-		(var mgPenaltyDuration:number = "parameter ? parameter.currentValue : 20" (event "parameter.evChanged"))
-
-		(var timer:gfx = "$datahub.getSingleComponent(CC.timer)")
-		(var currentServerTime:number = "timer.currentServerTime" (event "timer.evFrequent"))
-		(var mgPenaltyEndTime:number = "currentServerTime + mgPenaltyDuration" watch=false (event "artilleryWeaponEntity.weapon.evShoot"))
-
-		(var countdown:number = "mgPenaltyEndTime - currentServerTime")
-		(var isCountDownVisible:bool = "countdown > 0")
-		(var countdownStr:str = "isCountDownVisible ? toString(formatFloatingPoint(countdown, false)) + ' ' + tr('IDS_SECOND') : ''")
-
 		(macro STAGE_SIZE)
+
+		(var animatedScale:number = 1 watch=false)
+		(var animatedAlpha:number = 1 watch=false)
+		(var animatedVisibility:bool = "isVisible" watch=false)
+
+		(controller $Animation
+			(bindcall play  duration=0.3
+							easing="Easing.quad_in"
+							from="{ animatedAlpha: 0, animatedScale: 2, animatedVisibility: false }"
+							to="{ animatedAlpha: 1, animatedScale: 1, animatedVisibility: true }"
+							action="killAll"
+							(bind enabled "isVisible")
+							(bind trigger "isVisible")
+			)
+			(bindcall play  duration=0.3
+							easing="Easing.quad_out"
+							from="{ animatedAlpha: 1, animatedScale: 1, animatedVisibility: true }"
+							to="{ animatedAlpha: 0, animatedScale: 2, animatedVisibility: false }"
+							action="killAll"
+							(bind enabled "!isVisible")
+							(bind trigger "isVisible")
+			)
+		)
 	)
 
-	(bind visible "isAlertVisible && isCountDownVisible")
+	(bind visible "animatedVisibility")
 
 	(style
 		(position = "absolute")
 		(hitTest = false)
-		(bind paddingLeft "(stageWidth / 2) + 222")
-		(bind paddingTop "(stageHeight / 2) - 200")
+		(bind width "stageWidth")
+		(bind height "stageHeight")
+		(align = "center|middle")
 	)
+	(block
+		(class $MiddleVHAbsolutely)
+		(hblock
+			(style
+				(position = "absolute")
+				(hgap = 4px)
+				(left = 250)
+				(bottom = "217 - 26")
+				(pivotX = 50%)
+				(pivotY = 50%)
+				(align = "middle|center")
 
-	(tf
-		(class $TextShotTimer)
-		(style (minWidth=64))
+				(bind visualScaleX "animatedScale")
+				(bind visualScaleY "animatedScale")
+				(bind alpha "animatedAlpha")
+			)
 
-		(bind text "countdownStr")
+			(block
+				(style
+					(backgroundImage = 'url:../battle_hud/reload_bars/icon/main_gun.png')
+					(width = 16)
+					(height = 16)
+					(marginLeft = -5px) # Artificial offset to visually align the elements with a centric line
+					(backgroundSize = "fill")
+				)
+				(colorTransform = "COLOR_TRANSFORM_WHITE_TO_ORANGE")
+			)
+			(tf
+				(class $TextShotTimerBold)
+				(style
+					(minWidth = 24px)
+					(textAlign = "left") # Prevent the numbers from wiggling as they change
+				)
+				(bind text "penaltyTimerText")
+			)
+			(tf
+				(class $TextShotTimerNormal)
+				(text = "tr('IDS_SECOND')")
+			)
+		)
 	)
 )
