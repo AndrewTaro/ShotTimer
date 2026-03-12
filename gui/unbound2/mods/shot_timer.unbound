@@ -38,9 +38,6 @@
 
 		(var isVisible:bool = "penaltyTimer > 0")
 
-		(var alertIndication:gfx = "$datahub.getSingleEntity(CC.battleIndication).alertIndication")
-		(var isAlertVisible:bool = "alertIndication.spotType == 'ship'" (event "alertIndication.evSpottedChanged"))
-
 		(macro STAGE_SIZE)
 
 		(var animatedScale:number = 1 watch=false)
