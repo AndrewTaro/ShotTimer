@@ -34,6 +34,12 @@
 		(var penaltyTimer:number = "aimAssist ? aimAssist.shootVisibilityTimer : 0" (event "aimAssist.evShootVisibilityTimerChanged"))
 		(var penaltyTimerText:str = "formatFloatingPoint(penaltyTimer <= 10 ? penaltyTimer : floor(penaltyTimer - 0.01), penaltyTimer < 10 ? 1 : 0)")
 
+		(var alertIndication:gfx = "$datahub.getSingleComponent(CC.alertIndication)")
+		(var spotType:str = "alertIndication ? alertIndication.spotType : null" (event "alertIndication.evSpottedChanged"))
+		(var isSpotted:bool = "spotType && spotType != 'none'")
+		(var colorTrans:dict = "isSpotted ? COLOR_TRANSFORM_WHITE_TO_ORANGE : {}")
+		(var fontColor:number = "isSpotted ? SC.Ui_styles.SERVICE_COLORS.ORANGE : SC.Ui_styles.SERVICE_COLORS.WHITE")
+
 		# (var isPenaltyTimerActive:bool = "aimAssist ? aimAssist.shootVisibilityTimerVisible : false" (event "aimAssist.evShootVisibilityTimerChanged"))
 
 		(var isVisible:bool = "penaltyTimer > 0")
@@ -98,18 +104,22 @@
 					(marginLeft = -5px) # Artificial offset to visually align the elements with a centric line
 					(backgroundSize = "fill")
 				)
-				(colorTransform = "COLOR_TRANSFORM_WHITE_TO_ORANGE")
+				(bind colorTransform "colorTrans")
 			)
 			(tf
 				(class $TextShotTimerBold)
 				(style
 					(minWidth = 24px)
 					(textAlign = "left") # Prevent the numbers from wiggling as they change
+					(bind textColor "fontColor")
 				)
 				(bind text "penaltyTimerText")
 			)
 			(tf
 				(class $TextShotTimerNormal)
+				(style
+					(bind textColor "fontColor")
+				)
 				(text = "tr('IDS_SECOND')")
 			)
 		)
