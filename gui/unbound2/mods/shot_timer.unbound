@@ -40,15 +40,18 @@
 		(var colorTrans:dict = "isSpotted ? COLOR_TRANSFORM_WHITE_TO_ORANGE : {}")
 		(var fontColor:number = "isSpotted ? SC.Ui_styles.SERVICE_COLORS.ORANGE : SC.Ui_styles.SERVICE_COLORS.WHITE")
 
+		(var avatar:gfx = "$datahub.getSingleEntity(CC.playerAvatar)")
+		(var isAlive:bool = "avatar && avatar.health ? avatar.health.isAlive : false" (event "avatar.health.evIsAliveChanged"))
+
 		# (var isPenaltyTimerActive:bool = "aimAssist ? aimAssist.shootVisibilityTimerVisible : false" (event "aimAssist.evShootVisibilityTimerChanged"))
 
-		(var isVisible:bool = "penaltyTimer > 0")
+		(var isPenaltyActive:bool = "penaltyTimer > 0")
 
 		(macro STAGE_SIZE)
 
 		(var animatedScale:number = 1 watch=false)
 		(var animatedAlpha:number = 1 watch=false)
-		(var animatedVisibility:bool = "isVisible" watch=false)
+		(var animatedVisibility:bool = "isPenaltyActive" watch=false)
 
 		(controller $Animation
 			(bindcall play  duration=0.3
@@ -56,21 +59,22 @@
 							from="{ animatedAlpha: 0, animatedScale: 2, animatedVisibility: false }"
 							to="{ animatedAlpha: 1, animatedScale: 1, animatedVisibility: true }"
 							action="killAll"
-							(bind enabled "isVisible")
-							(bind trigger "isVisible")
+							(bind enabled "isPenaltyActive")
+							(bind trigger "isPenaltyActive")
 			)
 			(bindcall play  duration=0.3
 							easing="Easing.quad_out"
 							from="{ animatedAlpha: 1, animatedScale: 1, animatedVisibility: true }"
 							to="{ animatedAlpha: 0, animatedScale: 2, animatedVisibility: false }"
 							action="killAll"
-							(bind enabled "!isVisible")
-							(bind trigger "isVisible")
+							(bind enabled "!isPenaltyActive")
+							(bind trigger "isPenaltyActive")
 			)
 		)
+		(var isVisible:bool = "isAlive && animatedVisibility")
 	)
 
-	(bind visible "animatedVisibility")
+	(bind visible "isVisible")
 
 	(style
 		(position = "absolute")
