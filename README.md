@@ -6,6 +6,6 @@ This was originally developed by ancient, who no longer played World of Warships
 ![image](https://github.com/user-attachments/assets/a1909fe1-2855-46a9-8936-dc62334e2287)
 # Install
 1. Download a zip.
-2. Unzip the archive, and you should get `gui`.
+2. Unzip the archive, and you should get `gui` and `ForgeBlueprints` folders.
 3. Move them to `(wows)/bin/(latest_number)/res_mods/`. So the path will look like `res_mods/gui`, etc.
 4. Done!
